@@ -11,20 +11,8 @@ class AuthService {
     private var cachedUser: UserProfile? = DataManager.getUserProfile()
 
     init {
-        if (cachedUser == null) {
-            val default = UserProfile(
-                id = UUID.randomUUID().toString(),
-                name = "Skylar Johnson",
-                email = "student@smartstudy.com",
-                passwordHash = hashPassword("studysmart"),
-                avatarInitials = "SJ",
-                studyGoalHours = 20,
-                streakDays = 5
-            )
-            DataManager.saveUserProfile(default)
-            cachedUser = default
-            DataManager.clearUserSession()
-        }
+        // Always clear session on app start - require login every time
+        DataManager.clearUserSession()
     }
 
     fun isLoggedIn(): Boolean = DataManager.getUserSession().loggedIn && cachedUser != null

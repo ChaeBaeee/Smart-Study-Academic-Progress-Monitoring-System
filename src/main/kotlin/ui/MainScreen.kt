@@ -1,5 +1,6 @@
 package com.smartstudy.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -22,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.smartstudy.models.UserProfile
@@ -143,18 +145,32 @@ private fun Sidebar(
                 .padding(horizontal = 20.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column(modifier = Modifier.padding(bottom = 8.dp)) {
-                Text(
-                    text = "Smart Study",
-                    style = MaterialTheme.typography.h5,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2196F3) // Blue color for visibility
+            // Logo and Title
+            Row(
+                modifier = Modifier.padding(bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Image(
+                    painter = painterResource("icon.png"),
+                    contentDescription = "Smart Study Logo",
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(12.dp))
                 )
-                Text(
-                    text = "Academic Progress",
-                    style = MaterialTheme.typography.caption,
-                    color = Color(0xFF666666) // Dark gray for better visibility
-                )
+                Column {
+                    Text(
+                        text = "Smart Study",
+                        style = MaterialTheme.typography.h6,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF2196F3)
+                    )
+                    Text(
+                        text = "Academic Progress",
+                        style = MaterialTheme.typography.caption,
+                        color = Color(0xFF666666)
+                    )
+                }
             }
 
             items.forEach { item ->

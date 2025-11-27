@@ -1,5 +1,6 @@
 package com.smartstudy
 
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
@@ -24,6 +25,7 @@ fun main() = application {
             exitApplication()
         },
         title = "Smart Study & Academic Progress Monitoring System",
+        icon = painterResource("icon.png"),
         state = WindowState(
             width = 1200.dp,
             height = 800.dp

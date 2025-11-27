@@ -4,10 +4,11 @@ plugins {
     kotlin("jvm") version "1.9.20"
     kotlin("plugin.serialization") version "1.9.20"
     id("org.jetbrains.compose") version "1.5.10"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "com.smartstudy"
-version = "1.0-SNAPSHOT"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -29,14 +30,36 @@ compose.desktop {
     application {
         mainClass = "com.smartstudy.MainKt"
         
+        // Disable ProGuard for release builds
+        buildTypes.release.proguard {
+            isEnabled = false
+        }
+        
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            // Specify target formats for Windows executable
+            targetFormats(TargetFormat.Exe, TargetFormat.Msi)
+            
             packageName = "Smart Study System"
             packageVersion = "1.0.0"
+            description = "Academic Progress Monitoring System"
+            copyright = "© 2025 Smart Study System"
+            vendor = "Smart Study"
             
             windows {
                 menuGroup = "Smart Study System"
                 upgradeUuid = "18159995-d967-4cd2-8885-77BFA97CFA9F"
+                // Add app icon if you have one
+                // iconFile.set(project.file("src/main/resources/icon.ico"))
+            }
+            
+            macOS {
+                // Add app icon if you have one
+                // iconFile.set(project.file("src/main/resources/icon.icns"))
+            }
+            
+            linux {
+                // Add app icon if you have one
+                // iconFile.set(project.file("src/main/resources/icon.png"))
             }
         }
     }
@@ -49,4 +72,27 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
+}
+
+// ProGuard is disabled in the compose.desktop block above
+
+// ShadowJar configuration for creating executable fat JAR
+tasks.shadowJar {
+    archiveBaseName.set("SmartStudySystem")
+    archiveClassifier.set("")
+    archiveVersion.set("")
+    
+    manifest {
+        attributes(
+            "Main-Class" to "com.smartstudy.MainKt"
+        )
+    }
+    
+    // Merge service files to avoid conflicts
+    mergeServiceFiles()
+    
+    // Exclude signature files to avoid conflicts
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
 }

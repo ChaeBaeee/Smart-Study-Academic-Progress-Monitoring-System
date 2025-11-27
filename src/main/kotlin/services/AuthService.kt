@@ -8,11 +8,20 @@ import java.util.UUID
 
 class AuthService {
 
-    private var cachedUser: UserProfile? = DataManager.getUserProfile()
+    private var cachedUser: UserProfile? = null
 
     init {
-        // Always clear session on app start - require login every time
-        DataManager.clearUserSession()
+        // Check for existing session - auto-login if session exists
+        val session = DataManager.getUserSession()
+        if (session.loggedIn && session.userId != null) {
+            val profile = DataManager.getUserProfile()
+            if (profile != null && profile.id == session.userId) {
+                cachedUser = profile
+            } else {
+                // Session exists but user doesn't match - clear invalid session
+                DataManager.clearUserSession()
+            }
+        }
     }
 
     fun isLoggedIn(): Boolean = DataManager.getUserSession().loggedIn && cachedUser != null
@@ -66,6 +75,7 @@ class AuthService {
     }
 
     fun logout() {
+        cachedUser = null
         DataManager.clearUserSession()
     }
 

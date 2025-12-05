@@ -23,7 +23,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.smartstudy.data.DataManager
 import com.smartstudy.services.AlertService
-import com.smartstudy.ui.UiEventBus
 import com.smartstudy.utils.hexToColor
 import java.text.SimpleDateFormat
 import java.util.*

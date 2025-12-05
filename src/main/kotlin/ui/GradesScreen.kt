@@ -32,7 +32,6 @@ import com.smartstudy.data.DataManager
 import com.smartstudy.models.Grade
 import com.smartstudy.services.PerformanceMonitoringService
 import java.text.SimpleDateFormat
-import com.smartstudy.ui.components.StatPill
 import java.util.*
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope

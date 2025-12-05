@@ -385,5 +385,122 @@
         "date": 1764231575210,
         "resolved": true,
         "severity": 2
+    },
+    {
+        "id": "8c37eaef-6070-48ea-8de3-e2a428d2c6f1",
+        "type": "MISSED_STUDY_GOAL",
+        "subjectId": "7ef5789a-cb65-4ea3-9a25-4c93b442c7be",
+        "message": "Study goal completion is 0.0% for ghj. Consider adjusting your schedule.",
+        "date": 1764911345497,
+        "resolved": true,
+        "severity": 2
+    },
+    {
+        "id": "35f6d544-f2e5-4c61-84f9-264e1097a101",
+        "type": "MISSED_STUDY_GOAL",
+        "subjectId": "3422cb81-bb21-4ec9-81ce-e990c91d3533",
+        "message": "Study goal completion is 0.0% for . Consider adjusting your schedule.",
+        "date": 1764911345521,
+        "resolved": true,
+        "severity": 2
+    },
+    {
+        "id": "ae67528e-5b34-4bd9-ad47-89ec7c75ebda",
+        "type": "MISSED_STUDY_GOAL",
+        "subjectId": "a0cea0c3-7c5b-45d0-a24f-3c76dc7611d3",
+        "message": "Study goal completion is 0.0% for asdasd. Consider adjusting your schedule.",
+        "date": 1764912766968,
+        "resolved": true,
+        "severity": 2
+    },
+    {
+        "id": "ac655c70-f51a-491b-b68a-4f21061ed687",
+        "type": "MISSED_STUDY_GOAL",
+        "subjectId": "ac43d1f9-81c8-4925-8b49-ad9404d8d329",
+        "message": "Study goal completion is 0.0% for . Consider adjusting your schedule.",
+        "date": 1764912766999,
+        "resolved": true,
+        "severity": 2
+    },
+    {
+        "id": "26fba597-8128-4cfd-8640-4d83fe55c2f1",
+        "type": "MISSED_STUDY_GOAL",
+        "subjectId": "f1990f01-5873-4048-aa25-abd062b0f0ea",
+        "message": "Study goal completion is 0.0% for asd. Consider adjusting your schedule.",
+        "date": 1764913029802,
+        "resolved": true,
+        "severity": 2
+    },
+    {
+        "id": "148e1314-0b4c-4f11-9ec7-0b40b9f89414",
+        "type": "MISSED_STUDY_GOAL",
+        "subjectId": "c2280e4b-2013-4652-b9d2-8f42da5783e7",
+        "message": "Study goal completion is 0.0% for . Consider adjusting your schedule.",
+        "date": 1764913029826,
+        "resolved": true,
+        "severity": 2
+    },
+    {
+        "id": "b159299d-5df2-40e7-b4fc-4b96d7366dcb",
+        "type": "MISSED_STUDY_GOAL",
+        "subjectId": "c6f82b82-0d67-44af-9830-a56c63d95426",
+        "message": "Study goal completion is 0.0% for . Consider adjusting your schedule.",
+        "date": 1764913174798,
+        "resolved": true,
+        "severity": 2
+    },
+    {
+        "id": "953d7996-3e4b-4e56-bbb0-c54e4fa265a8",
+        "type": "MISSED_STUDY_GOAL",
+        "subjectId": "0cc94c27-9e5d-4709-860a-ac3c9325f46a",
+        "message": "Study goal completion is 0.0% for dfg. Consider adjusting your schedule.",
+        "date": 1764915507667,
+        "resolved": true,
+        "severity": 2
+    },
+    {
+        "id": "4683e9d1-c78a-4529-b2b8-8034b726e2ec",
+        "type": "MISSED_STUDY_GOAL",
+        "subjectId": "f3858597-89d9-4d2f-b344-55b54a166fc6",
+        "message": "Study goal completion is 0.0% for uyguyg. Consider adjusting your schedule.",
+        "date": 1764916922643,
+        "resolved": true,
+        "severity": 2
+    },
+    {
+        "id": "ef735777-0bd1-436d-ad16-578f6b153ba9",
+        "type": "MISSED_STUDY_GOAL",
+        "subjectId": "ce013da9-f367-4839-82cb-995d46ce4c41",
+        "message": "Study goal completion is 0.0% for asd. Consider adjusting your schedule.",
+        "date": 1764917706603,
+        "resolved": true,
+        "severity": 2
+    },
+    {
+        "id": "1858a5b6-05d4-424e-9034-23d40c874aa7",
+        "type": "MISSED_STUDY_GOAL",
+        "subjectId": "ce013da9-f367-4839-82cb-995d46ce4c41",
+        "message": "Study goal completion is 0.0% for asd. Consider adjusting your schedule.",
+        "date": 1764917815720,
+        "resolved": true,
+        "severity": 2
+    },
+    {
+        "id": "f6b6c3c8-5865-4a05-a2fc-3d45fd46ae39",
+        "type": "MISSED_STUDY_GOAL",
+        "subjectId": "a9719912-f1e0-41cb-9416-1aa17791337f",
+        "message": "Study goal completion is 0.0% for asdasd. Consider adjusting your schedule.",
+        "date": 1764918732396,
+        "resolved": true,
+        "severity": 2
+    },
+    {
+        "id": "facfb903-7429-42cf-943b-987797852c3d",
+        "type": "MISSED_STUDY_GOAL",
+        "subjectId": "43489746-1c62-43e5-845a-e90b33ead3db",
+        "message": "Study goal completion is 0.0% for asdasd. Consider adjusting your schedule.",
+        "date": 1764919089500,
+        "resolved": true,
+        "severity": 2
     }
 ]

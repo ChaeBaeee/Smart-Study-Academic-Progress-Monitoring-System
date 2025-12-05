@@ -10,6 +10,7 @@ import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -24,6 +25,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.smartstudy.data.DataManager
@@ -31,6 +33,31 @@ import com.smartstudy.services.BreakReminderService
 import com.smartstudy.services.FocusTimerService
 import com.smartstudy.services.TimeTrackingService
 import kotlinx.coroutines.delay
+
+// Helper function to parse hex color string to Color
+private fun hexToColor(hex: String): Color {
+    return try {
+        val cleanHex = hex.removePrefix("#")
+        when (cleanHex.length) {
+            6 -> {
+                val r = cleanHex.substring(0, 2).toInt(16)
+                val g = cleanHex.substring(2, 4).toInt(16)
+                val b = cleanHex.substring(4, 6).toInt(16)
+                Color(r, g, b)
+            }
+            8 -> {
+                val a = cleanHex.substring(0, 2).toInt(16)
+                val r = cleanHex.substring(2, 4).toInt(16)
+                val g = cleanHex.substring(4, 6).toInt(16)
+                val b = cleanHex.substring(6, 8).toInt(16)
+                Color(r, g, b, a)
+            }
+            else -> Color(0xFF3498DB) // Default blue
+        }
+    } catch (e: Exception) {
+        Color(0xFF3498DB) // Default blue on error
+    }
+}
 
 private enum class TimerTab { Study, Break }
 
@@ -231,7 +258,7 @@ fun StudyTimerScreen() {
                     onStartSession = {
                         val subject = subjects.find { it.name == selectedSubject }
                         if (subject != null) {
-                            val session = timeTrackingService.startSession(subject.id, topicText)
+                            val session = timeTrackingService.startSession(subject.id, topicText.trim())
                             activeSessionId = session.id
                             breakReminderService.startMonitoring(session)
                             // Also start the study timer
@@ -250,31 +277,6 @@ fun StudyTimerScreen() {
                             UiEventBus.notifyDataChanged()
                         }
                         activeSessionId = null
-                    },
-                    onLogSession = {
-                        val subject = subjects.find { it.name == selectedSubject }
-                        if (subject != null) {
-                            // Calculate actual elapsed time from timer service
-                            val actualElapsedMinutes = if (isRunning || timerService.getRemainingSeconds() > 0) {
-                                val work = workMinutes.toIntOrNull()?.coerceIn(1, 999) ?: 25
-                                val breakLen = breakMinutes.toIntOrNull()?.coerceIn(1, 999) ?: 5
-                                val totalDuration = if (selectedTab == TimerTab.Study) work * 60 else breakLen * 60
-                                val remaining = timerService.getRemainingSeconds()
-                                val elapsed = (totalDuration - remaining) / 60
-                                elapsed.coerceAtLeast(0)
-                            } else {
-                                elapsedMinutes
-                            }
-                            if (actualElapsedMinutes > 0) {
-                                timeTrackingService.addManualSession(
-                                    subjectId = subject.id,
-                                    startTime = System.currentTimeMillis() - actualElapsedMinutes * 60_000L,
-                                    durationMinutes = actualElapsedMinutes,
-                                    topic = topicText
-                                )
-                                UiEventBus.notifyDataChanged()
-                            }
-                        }
                     }
                 )
 
@@ -655,8 +657,7 @@ fun SessionTrackingCard(
     elapsedMinutes: Int,
     sessionStatus: String,
     onStartSession: () -> Unit,
-    onEndSession: () -> Unit,
-    onLogSession: () -> Unit
+    onEndSession: () -> Unit
 ) {
     Card(
         shape = RoundedCornerShape(24.dp),
@@ -681,14 +682,25 @@ fun SessionTrackingCard(
                     expanded = expanded,
                     onDismissRequest = { expanded = false }
                 ) {
-                    subjects.map { it.name }.forEach { item ->
+                    subjects.forEach { subject ->
+                        val subjectColor = hexToColor(subject.color)
                         DropdownMenuItem(
                             onClick = {
-                                onSubjectSelected(item)
+                                onSubjectSelected(subject.name)
                                 expanded = false
                             }
                         ) {
-                            Text(item)
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(16.dp)
+                                        .background(color = subjectColor, shape = CircleShape)
+                                )
+                                Text(subject.name)
+                            }
                         }
                     }
                 }
@@ -723,22 +735,11 @@ fun SessionTrackingCard(
                     Text("End & Save")
                 }
             }
-            Button(
-                onClick = onLogSession,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                enabled = selectedSubject != null && elapsedMinutes > 0,
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(Icons.Default.CheckCircle, contentDescription = null)
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    if (elapsedMinutes > 0) "Log ${elapsedMinutes} min Session" else "Log Session"
-                )
-            }
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 backgroundColor = MaterialTheme.colors.primary.copy(alpha = 0.08f),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                elevation = 0.dp
             ) {
                 Text(
                     text = sessionStatus,

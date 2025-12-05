@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -33,6 +34,31 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
+
+// Helper function to parse hex color string to Color
+private fun hexToColor(hex: String): Color {
+    return try {
+        val cleanHex = hex.removePrefix("#")
+        when (cleanHex.length) {
+            6 -> {
+                val r = cleanHex.substring(0, 2).toInt(16)
+                val g = cleanHex.substring(2, 4).toInt(16)
+                val b = cleanHex.substring(4, 6).toInt(16)
+                Color(r, g, b)
+            }
+            8 -> {
+                val a = cleanHex.substring(0, 2).toInt(16)
+                val r = cleanHex.substring(2, 4).toInt(16)
+                val g = cleanHex.substring(4, 6).toInt(16)
+                val b = cleanHex.substring(6, 8).toInt(16)
+                Color(r, g, b, a)
+            }
+            else -> Color(0xFF3498DB) // Default blue
+        }
+    } catch (e: Exception) {
+        Color(0xFF3498DB) // Default blue on error
+    }
+}
 
 @Composable
 fun DashboardScreen(
@@ -307,6 +333,8 @@ private fun UpcomingScheduleCard(items: List<SchedulePreview>) {
                 Text("No study blocks scheduled. Generate a plan to stay on track.")
             } else {
                 items.forEach { session ->
+                    val subject = DataManager.getSubjects().find { it.id == session.subjectId }
+                    val subjectColor = subject?.let { hexToColor(it.color) } ?: Color(0xFF3498DB)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -315,14 +343,24 @@ private fun UpcomingScheduleCard(items: List<SchedulePreview>) {
                             Text(session.dayLabel, fontWeight = FontWeight.Bold)
                             Text(session.time, color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f))
                         }
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(session.subject, fontWeight = FontWeight.Medium)
-                            if (session.topic.isNotBlank()) {
-                                Text(
-                                    session.topic,
-                                    style = MaterialTheme.typography.caption,
-                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
-                                )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(12.dp)
+                                    .background(color = subjectColor, shape = CircleShape)
+                            )
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text(session.subject, fontWeight = FontWeight.Medium, color = subjectColor)
+                                if (session.topic.isNotBlank()) {
+                                    Text(
+                                        session.topic,
+                                        style = MaterialTheme.typography.caption,
+                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
+                                    )
+                                }
                             }
                         }
                     }
@@ -351,11 +389,6 @@ private fun TopicReviewCard(
             Text("Topic Review", style = MaterialTheme.typography.h6, fontWeight = FontWeight.Bold)
             nextTopic?.let {
                 Text("Next up: ${it.topic.name}", fontWeight = FontWeight.Bold)
-                Text(
-                    text = "Priority score ${String.format("%.1f", it.priorityScore)} • ${it.daysSinceReview} days since review",
-                    style = MaterialTheme.typography.body2,
-                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f)
-                )
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Button(onClick = onReview, shape = RoundedCornerShape(16.dp)) {
                         Text("Mark Reviewed")
@@ -434,12 +467,24 @@ private fun SubjectProgressCard(
             progress.forEach { item ->
                 val subject = DataManager.getSubjects().find { it.id == item.subjectId }
                 if (subject != null) {
+                    val subjectColor = hexToColor(subject.color)
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(subject.name, fontWeight = FontWeight.Bold)
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(12.dp)
+                                        .background(color = subjectColor, shape = CircleShape)
+                                )
+                                Text(subject.name, fontWeight = FontWeight.Bold, color = subjectColor)
+                            }
                             Text("${String.format("%.1f", item.completionPercentage)}%")
                         }
                         LinearProgressIndicator(
@@ -448,7 +493,7 @@ private fun SubjectProgressCard(
                                 .fillMaxWidth()
                                 .height(8.dp),
                             backgroundColor = MaterialTheme.colors.onSurface.copy(alpha = 0.1f),
-                            color = if (item.completionPercentage >= 80) Color(0xFF2ECC71) else Color(0xFF5A6DFF)
+                            color = if (item.completionPercentage >= 80) Color(0xFF2ECC71) else subjectColor
                         )
                     }
                 }
@@ -461,6 +506,7 @@ private data class SchedulePreview(
     val dayLabel: String,
     val time: String,
     val subject: String,
+    val subjectId: String,
     val topic: String
 )
 
@@ -478,9 +524,10 @@ private fun getUpcomingSchedulePreview(): List<SchedulePreview> {
         .take(3)
         .map { item ->
             SchedulePreview(
-                dayLabel = dayNameFor(item.dayOfWeek),
+                dayLabel = dayNameFor(item.dayOfWeek.coerceIn(0, 6)),
                 time = item.startTime,
                 subject = subjects[item.subjectId]?.name ?: "Unknown",
+                subjectId = item.subjectId,
                 topic = item.topic
             )
         }

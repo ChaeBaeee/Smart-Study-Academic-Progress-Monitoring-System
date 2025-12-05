@@ -2,6 +2,7 @@ package com.smartstudy.ui
 
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -10,6 +11,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -22,7 +24,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.smartstudy.data.DataManager
 import com.smartstudy.models.Grade
@@ -103,10 +108,10 @@ fun GradesScreen() {
         ) {
             Column {
                 Text("Grades & Performance", style = MaterialTheme.typography.h5, fontWeight = FontWeight.Bold)
-                Text("Track assessments and see trends per subject", color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f))
+                Text("Track assessments and see trends per subject", style = MaterialTheme.typography.body2.copy(color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f)))
             }
             Button(onClick = { showAddGradeDialog = true }, shape = RoundedCornerShape(12.dp)) {
-                Text("Add Grade")
+                Text("Add Grade", style = MaterialTheme.typography.body1)
             }
         }
 
@@ -121,12 +126,11 @@ fun GradesScreen() {
                     modifier = Modifier.padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Overall Average", style = MaterialTheme.typography.caption, color = Color(0xFF6E8BFF))
+                    Text("Overall Average", style = MaterialTheme.typography.caption.copy(color = Color(0xFF6E8BFF)))
                     Text(
-                        "${String.format("%.1f", gradeStats.averagePercentage)}%",
-                        style = MaterialTheme.typography.h5,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF6E8BFF)
+                        text = "${String.format("%.1f", gradeStats.averagePercentage)}%",
+                        style = MaterialTheme.typography.h5.copy(color = Color(0xFF6E8BFF)),
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -139,12 +143,11 @@ fun GradesScreen() {
                     modifier = Modifier.padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Total Grades", style = MaterialTheme.typography.caption, color = Color(0xFF6FEDD6))
+                    Text("Total Grades", style = MaterialTheme.typography.caption.copy(color = Color(0xFF6FEDD6)))
                     Text(
-                        gradeStats.totalAssignments.toString(),
-                        style = MaterialTheme.typography.h5,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF6FEDD6)
+                        text = gradeStats.totalAssignments.toString(),
+                        style = MaterialTheme.typography.h5.copy(color = Color(0xFF6FEDD6)),
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -157,12 +160,11 @@ fun GradesScreen() {
                     modifier = Modifier.padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Best Subject", style = MaterialTheme.typography.caption, color = Color(0xFF4CAF50))
+                    Text("Best Subject", style = MaterialTheme.typography.caption.copy(color = Color(0xFF4CAF50)))
                     Text(
-                        gradeStats.bestSubject ?: "—",
-                        style = MaterialTheme.typography.h5,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF4CAF50)
+                        text = gradeStats.bestSubject ?: "—",
+                        style = MaterialTheme.typography.h5.copy(color = Color(0xFF4CAF50)),
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -175,12 +177,11 @@ fun GradesScreen() {
                     modifier = Modifier.padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Worst Subject", style = MaterialTheme.typography.caption, color = Color(0xFFFF5F6D))
+                    Text("Worst Subject", style = MaterialTheme.typography.caption.copy(color = Color(0xFFFF5F6D)))
                     Text(
-                        gradeStats.worstSubject ?: "—",
-                        style = MaterialTheme.typography.h5,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFFFF5F6D)
+                        text = gradeStats.worstSubject ?: "—",
+                        style = MaterialTheme.typography.h5.copy(color = Color(0xFFFF5F6D)),
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -284,7 +285,7 @@ private fun FilterRow(
                 modifier = Modifier.height(56.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text(selected ?: "All Subjects", modifier = Modifier.weight(1f))
+                Text(selected ?: "All Subjects", style = MaterialTheme.typography.body1, modifier = Modifier.weight(1f))
                 Icon(Icons.Filled.ArrowDropDown, contentDescription = null)
             }
             DropdownMenu(
@@ -298,13 +299,13 @@ private fun FilterRow(
                             expanded = false
                         }
                     ) {
-                        Text(item)
+                        Text(item, style = MaterialTheme.typography.body1)
                     }
                 }
             }
         }
         OutlinedButton(onClick = onRefresh, shape = RoundedCornerShape(12.dp)) {
-            Text("Apply Filter")
+            Text("Apply Filter", style = MaterialTheme.typography.body1)
         }
     }
 }
@@ -333,8 +334,8 @@ private fun AverageBySubjectCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Averages by Subject", style = MaterialTheme.typography.h6, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
-                Text("${allPerformance.size} subjects", style = MaterialTheme.typography.caption, color = Color(0xFF4A4A4A))
+                Text("Averages by Subject", style = MaterialTheme.typography.h6.copy(color = Color(0xFF1A1A1A)), fontWeight = FontWeight.Bold)
+                Text("${allPerformance.size} subjects", style = MaterialTheme.typography.caption.copy(color = Color(0xFF4A4A4A)))
             }
             if (allPerformance.isEmpty() || allPerformance.all { it.averageGrade == null }) {
                 Box(
@@ -344,9 +345,8 @@ private fun AverageBySubjectCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "No grades recorded yet",
-                        style = MaterialTheme.typography.body2,
-                        color = Color(0xFF4A4A4A)
+                        text = "No grades recorded yet",
+                        style = MaterialTheme.typography.body2.copy(color = Color(0xFF4A4A4A))
                     )
                 }
             } else {
@@ -377,6 +377,11 @@ private fun AverageBySubjectCard(
                                         subjectColor.copy(alpha = 0.15f),
                                         RoundedCornerShape(12.dp)
                                     )
+                                    .border(
+                                        width = 2.dp,
+                                        color = subjectColor.copy(alpha = 0.4f),
+                                        shape = RoundedCornerShape(12.dp)
+                                    )
                                     .padding(12.dp)
                             ) {
                                 Row(
@@ -385,14 +390,13 @@ private fun AverageBySubjectCard(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Column(modifier = Modifier.weight(1f)) {
-                                        Text(subject.name, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
-                                        Text("Status: ${perf.status}", style = MaterialTheme.typography.caption, color = Color(0xFF4A4A4A))
+                                        Text(subject.name, style = MaterialTheme.typography.body1.copy(color = subjectColor), fontWeight = FontWeight.Bold)
+                                        Text("Status: ${perf.status}", style = MaterialTheme.typography.caption.copy(color = Color(0xFF4A4A4A)))
                                     }
                                     Text(
-                                        "${String.format("%.1f", perf.averageGrade)}%",
-                                        style = MaterialTheme.typography.h6,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF1A1A1A)
+                                        text = "${String.format("%.1f", perf.averageGrade)}%",
+                                        style = MaterialTheme.typography.h6.copy(color = Color(0xFF1A1A1A)),
+                                        fontWeight = FontWeight.Bold
                                     )
                                 }
                             }
@@ -439,11 +443,10 @@ fun GradesListCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Recent Grades", style = MaterialTheme.typography.h6, fontWeight = FontWeight.Bold, color = Color(0xFF1A1A1A))
+                    Text("Recent Grades", style = MaterialTheme.typography.h6.copy(color = Color(0xFF1A1A1A)), fontWeight = FontWeight.Bold)
                     Text(
-                        "${grades.size} entries",
-                        style = MaterialTheme.typography.caption,
-                        color = Color(0xFF4A4A4A)
+                        text = "${grades.size} entries",
+                        style = MaterialTheme.typography.caption.copy(color = Color(0xFF4A4A4A))
                     )
                 }
                 if (grades.isEmpty()) {
@@ -454,9 +457,8 @@ fun GradesListCard(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            "No grades recorded yet. Add your first grade to get started!",
-                            style = MaterialTheme.typography.body2,
-                            color = Color(0xFF4A4A4A)
+                            text = "No grades recorded yet. Add your first grade to get started!",
+                            style = MaterialTheme.typography.body2.copy(color = Color(0xFF4A4A4A))
                         )
                     }
                 } else {
@@ -487,6 +489,11 @@ fun GradesListCard(
                                         subjectColor.copy(alpha = 0.15f),
                                         RoundedCornerShape(16.dp)
                                     )
+                                    .border(
+                                        width = 2.dp,
+                                        color = subjectColor.copy(alpha = 0.4f),
+                                        shape = RoundedCornerShape(16.dp)
+                                    )
                                     .padding(16.dp)
                             ) {
                                 Row(
@@ -499,34 +506,31 @@ fun GradesListCard(
                                         verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
                                         Text(
-                                            subject?.name ?: "Unknown",
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color(0xFF1A1A1A)
+                                            text = subject?.name ?: "Unknown",
+                                            style = MaterialTheme.typography.body1.copy(color = subjectColor),
+                                            fontWeight = FontWeight.Bold
                                         )
                                         Text(
-                                            grade.type,
-                                            style = MaterialTheme.typography.subtitle1,
-                                            color = Color(0xFF2D2D2D)
+                                            text = grade.type,
+                                            style = MaterialTheme.typography.subtitle1.copy(color = Color(0xFF2D2D2D))
                                         )
                                         Text(
-                                            "Score: ${grade.score}/${grade.maxScore} • ${
+                                            text = "Score: ${grade.score}/${grade.maxScore} • ${
                                                 String.format(
                                                     "%.1f",
                                                     grade.score / grade.maxScore * 100
                                                 )
                                             }%",
-                                            color = Color(0xFF1A1A1A)
+                                            style = MaterialTheme.typography.body2.copy(color = Color(0xFF1A1A1A))
                                         )
                                         Text(
-                                            "Date: ${dateFormat.format(Date(grade.date))}",
-                                            style = MaterialTheme.typography.caption,
-                                            color = Color(0xFF4A4A4A)
+                                            text = "Date: ${dateFormat.format(Date(grade.date))}",
+                                            style = MaterialTheme.typography.caption.copy(color = Color(0xFF4A4A4A))
                                         )
                                         if (grade.category.isNotEmpty()) {
                                             Text(
-                                                "Category: ${grade.category}",
-                                                style = MaterialTheme.typography.caption,
-                                                color = Color(0xFF4A4A4A)
+                                                text = "Category: ${grade.category}",
+                                                style = MaterialTheme.typography.caption.copy(color = Color(0xFF4A4A4A))
                                             )
                                         }
                                     }
@@ -613,75 +617,159 @@ fun AddGradeDialog(
     var maxScore by remember(editingGrade) { mutableStateOf(editingGrade?.maxScore?.toString() ?: "") }
     var category by remember(editingGrade) { mutableStateOf(editingGrade?.category ?: "") }
 
+    // Validation states
+    val scoreValue = score.toDoubleOrNull()
+    val maxScoreValue = maxScore.toDoubleOrNull()
+    val isScoreValid = score.isEmpty() || scoreValue != null
+    val isMaxScoreValid = maxScore.isEmpty() || maxScoreValue != null
+    val isMaxScoreGreaterOrEqual = scoreValue != null && maxScoreValue != null && maxScoreValue >= scoreValue
+    val canSubmit = subjectName != null && 
+                    type.isNotBlank() && 
+                    scoreValue != null && 
+                    maxScoreValue != null && 
+                    isMaxScoreGreaterOrEqual
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (editingGrade != null) "Edit Grade" else "Add Grade") },
+        title = { 
+            Text(
+                if (editingGrade != null) "Edit Grade" else "Add Grade",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            ) 
+        },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 val subjects = DataManager.getSubjects().map { it.name }
                 var expanded by remember { mutableStateOf(false) }
-                Box {
+                Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedButton(
                         onClick = { expanded = true },
                         modifier = Modifier.fillMaxWidth().height(56.dp),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text(subjectName ?: "Select Subject", modifier = Modifier.weight(1f))
+                        Text(subjectName ?: "Select Subject", style = MaterialTheme.typography.body1, modifier = Modifier.weight(1f))
                         Icon(Icons.Filled.ArrowDropDown, contentDescription = null)
                     }
                     DropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false }
                     ) {
-                        subjects.forEach { item ->
+                        DataManager.getSubjects().forEach { subject ->
+                            val subjectColor = subject.color?.let { colorStr ->
+                                try {
+                                    val hex = if (colorStr.startsWith("#")) colorStr.substring(1) else colorStr
+                                    val colorInt = hex.toLong(16).toInt()
+                                    Color(colorInt or 0xFF000000.toInt())
+                                } catch (e: Exception) {
+                                    Color(0xFF6E8BFF)
+                                }
+                            } ?: Color(0xFF6E8BFF)
                             DropdownMenuItem(
                                 onClick = {
-                                    subjectName = item
+                                    subjectName = subject.name
                                     expanded = false
                                 }
                             ) {
-                                Text(item)
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(16.dp)
+                                            .background(subjectColor, CircleShape)
+                                    )
+                                    Text(subject.name, style = MaterialTheme.typography.body1)
+                                }
                             }
                         }
                     }
                 }
-                TextField(
+                OutlinedTextField(
                     value = type,
                     onValueChange = { type = it },
-                    label = { Text("Type") }
+                    label = { Text("Type") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
-                TextField(
-                    value = score,
-                    onValueChange = { score = it },
-                    label = { Text("Score") }
-                )
-                TextField(
-                    value = maxScore,
-                    onValueChange = { maxScore = it },
-                    label = { Text("Max Score") }
-                )
-                TextField(
+                Column {
+                    OutlinedTextField(
+                        value = score,
+                        onValueChange = { newValue ->
+                            // Only allow numbers and decimal point
+                            if (newValue.isEmpty() || newValue.all { char -> char.isDigit() || char == '.' }) {
+                                score = newValue
+                            }
+                        },
+                        label = { Text("Score") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        isError = !isScoreValid || (scoreValue != null && maxScoreValue != null && !isMaxScoreGreaterOrEqual)
+                    )
+                    if (scoreValue != null && maxScoreValue != null && !isMaxScoreGreaterOrEqual) {
+                        Text(
+                            "Score must be ≤ Max Score",
+                            color = MaterialTheme.colors.error,
+                            style = MaterialTheme.typography.caption,
+                            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                        )
+                    }
+                }
+                Column {
+                    OutlinedTextField(
+                        value = maxScore,
+                        onValueChange = { newValue ->
+                            // Only allow numbers and decimal point
+                            if (newValue.isEmpty() || newValue.all { char -> char.isDigit() || char == '.' }) {
+                                maxScore = newValue
+                            }
+                        },
+                        label = { Text("Max Score") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        isError = !isMaxScoreValid || (scoreValue != null && maxScoreValue != null && !isMaxScoreGreaterOrEqual)
+                    )
+                    if (scoreValue != null && maxScoreValue != null && !isMaxScoreGreaterOrEqual) {
+                        Text(
+                            "Max Score must be ≥ Score",
+                            color = MaterialTheme.colors.error,
+                            style = MaterialTheme.typography.caption,
+                            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                        )
+                    }
+                }
+                OutlinedTextField(
                     value = category,
                     onValueChange = { category = it },
-                    label = { Text("Category (optional)") }
+                    label = { Text("Category (optional)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    if (subjectName != null) {
+                    if (subjectName != null && canSubmit) {
                         onAdd(
                             subjectName!!,
-                            type,
-                            score.toDoubleOrNull() ?: 0.0,
-                            maxScore.toDoubleOrNull() ?: 100.0,
-                            category
+                            type.trim(),
+                            scoreValue!!,
+                            maxScoreValue!!,
+                            category.trim()
                         )
                     }
-                }
+                },
+                enabled = canSubmit
             ) {
-                Text("Add")
+                Text(if (editingGrade != null) "Save" else "Add")
             }
         },
         dismissButton = {

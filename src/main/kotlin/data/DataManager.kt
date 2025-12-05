@@ -128,6 +128,9 @@ object DataManager {
     fun deleteSubject(id: String) {
         subjects.removeAll { it.id == id }
         saveToFile(subjectsFile, subjects)
+        // Also delete all schedule items for this subject
+        scheduleItems.removeAll { it.subjectId == id }
+        saveToFile(scheduleItemsFile, scheduleItems)
     }
     
     // Study Sessions

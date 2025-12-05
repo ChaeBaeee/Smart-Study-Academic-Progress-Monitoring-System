@@ -7,6 +7,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -20,8 +23,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.smartstudy.data.DataManager
 import com.smartstudy.services.AlertService
+import com.smartstudy.ui.UiEventBus
 import java.text.SimpleDateFormat
 import java.util.*
+
+// Helper function to parse hex color string to Color
+private fun hexToColor(hex: String): Color {
+    return try {
+        val cleanHex = hex.removePrefix("#")
+        when (cleanHex.length) {
+            6 -> {
+                val r = cleanHex.substring(0, 2).toInt(16)
+                val g = cleanHex.substring(2, 4).toInt(16)
+                val b = cleanHex.substring(4, 6).toInt(16)
+                Color(r, g, b)
+            }
+            8 -> {
+                val a = cleanHex.substring(0, 2).toInt(16)
+                val r = cleanHex.substring(2, 4).toInt(16)
+                val g = cleanHex.substring(4, 6).toInt(16)
+                val b = cleanHex.substring(6, 8).toInt(16)
+                Color(r, g, b, a)
+            }
+            else -> Color(0xFF3498DB) // Default blue
+        }
+    } catch (e: Exception) {
+        Color(0xFF3498DB) // Default blue on error
+    }
+}
 
 @Composable
 fun AlertsScreen() {
@@ -51,7 +80,7 @@ fun AlertsScreen() {
             Column {
                 Text("Performance Alerts", style = MaterialTheme.typography.h5, fontWeight = FontWeight.Bold)
                 Text("Scan and resolve issues before they impact performance",
-                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f))
+                    style = MaterialTheme.typography.body2.copy(color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f)))
             }
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(
@@ -63,7 +92,7 @@ fun AlertsScreen() {
                 ) {
                     Icon(Icons.Default.Notifications, contentDescription = null)
                     Spacer(Modifier.width(6.dp))
-                    Text("Scan Now")
+                    Text("Scan Now", style = MaterialTheme.typography.body1)
                 }
                 Button(
                     onClick = {
@@ -76,7 +105,7 @@ fun AlertsScreen() {
                 ) {
                     Icon(Icons.Default.Refresh, contentDescription = null)
                     Spacer(Modifier.width(6.dp))
-                    Text("Refresh")
+                    Text("Refresh", style = MaterialTheme.typography.body1)
                 }
             }
         }
@@ -161,10 +190,10 @@ private fun AlertStatCard(
         elevation = 0.dp
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(title, style = MaterialTheme.typography.caption, color = color.copy(alpha = 0.8f))
-            Text(value, style = MaterialTheme.typography.h5, fontWeight = FontWeight.Bold, color = color)
-            Text(description, style = MaterialTheme.typography.body2,
-                color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f))
+            Text(title, style = MaterialTheme.typography.caption.copy(color = color.copy(alpha = 0.8f)))
+            Text(value, style = MaterialTheme.typography.h5.copy(color = color), fontWeight = FontWeight.Bold)
+            Text(description, style = MaterialTheme.typography.body2.copy(
+                color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f)))
         }
     }
 }
@@ -190,9 +219,9 @@ private fun AlertListSection(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(title, style = MaterialTheme.typography.h6, color = tint, fontWeight = FontWeight.Bold)
+            Text(title, style = MaterialTheme.typography.h6.copy(color = tint), fontWeight = FontWeight.Bold)
             if (alerts.isEmpty()) {
-                Text("No alerts in this category.")
+                Text("No alerts in this category.", style = MaterialTheme.typography.body2)
             } else {
                 LazyColumn(
                     modifier = Modifier
@@ -216,29 +245,42 @@ fun AlertItem(
     onResolve: () -> Unit,
     tint: Color
 ) {
-    val subject = alert.subjectId?.let { id ->
-        DataManager.getSubjects().find { s -> s.id == id }?.name
-    } ?: "General"
+    val subjectObj = alert.subjectId?.let { id ->
+        DataManager.getSubjects().find { s -> s.id == id }
+    }
+    val subject = subjectObj?.name ?: "General"
+    val subjectColor = subjectObj?.let { hexToColor(it.color) } ?: Color(0xFF3498DB)
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colors.surface,
+        color = subjectColor.copy(alpha = 0.1f),
+        border = androidx.compose.foundation.BorderStroke(2.dp, subjectColor.copy(alpha = 0.3f)),
         elevation = 2.dp
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(subject, fontWeight = FontWeight.Bold)
-            Text(alert.message)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .background(subjectColor, CircleShape)
+                )
+                Text(subject, style = MaterialTheme.typography.body1.copy(color = subjectColor), fontWeight = FontWeight.Bold)
+            }
+            Text(alert.message, style = MaterialTheme.typography.body2)
             Text(dateFormat.format(Date(alert.date)), style = MaterialTheme.typography.caption)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Severity ${alert.severity}", color = tint, fontWeight = FontWeight.SemiBold)
+                Text("Severity ${alert.severity}", style = MaterialTheme.typography.body2.copy(color = tint), fontWeight = FontWeight.SemiBold)
                 if (!alert.resolved) {
                     OutlinedButton(onClick = onResolve, shape = RoundedCornerShape(12.dp)) {
-                        Text("Resolve")
+                        Text("Resolve", style = MaterialTheme.typography.body1)
                     }
                 }
             }

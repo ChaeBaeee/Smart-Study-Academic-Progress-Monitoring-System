@@ -76,7 +76,12 @@ java {
 
 // ProGuard is disabled in the compose.desktop block above
 
-// ShadowJar configuration for creating executable fat JAR
+// Disable the default jar task to avoid confusion
+tasks.jar {
+    enabled = false
+}
+
+// ShadowJar configuration for creating executable fat JAR with all dependencies
 tasks.shadowJar {
     archiveBaseName.set("SmartStudySystem")
     archiveClassifier.set("")
@@ -95,4 +100,7 @@ tasks.shadowJar {
     exclude("META-INF/*.SF")
     exclude("META-INF/*.DSA")
     exclude("META-INF/*.RSA")
+    
+    // Shadow plugin automatically includes all runtime dependencies by default
+    // This includes Kotlin stdlib, Compose Desktop, and all other dependencies
 }

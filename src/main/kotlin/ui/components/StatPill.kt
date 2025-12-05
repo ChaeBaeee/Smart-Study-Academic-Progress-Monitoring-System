@@ -3,6 +3,7 @@ package com.smartstudy.ui.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -22,8 +23,8 @@ fun StatPill(
         elevation = 0.dp
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-            Text(title, fontWeight = FontWeight.Medium)
-            Text(value, fontWeight = FontWeight.Bold)
+            Text(title, style = MaterialTheme.typography.body2, fontWeight = FontWeight.Medium)
+            Text(value, style = MaterialTheme.typography.body1, fontWeight = FontWeight.Bold)
         }
     }
 }

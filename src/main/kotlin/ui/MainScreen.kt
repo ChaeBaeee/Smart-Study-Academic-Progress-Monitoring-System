@@ -161,14 +161,12 @@ private fun Sidebar(
                 Column {
                     Text(
                         text = "Smart Study",
-                        style = MaterialTheme.typography.h6,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF2196F3)
+                        style = MaterialTheme.typography.h6.copy(color = Color(0xFF2196F3)),
+                        fontWeight = FontWeight.Bold
                     )
                     Text(
                         text = "Academic Progress",
-                        style = MaterialTheme.typography.caption,
-                        color = Color(0xFF666666)
+                        style = MaterialTheme.typography.caption.copy(color = Color(0xFF666666))
                     )
                 }
             }
@@ -193,7 +191,7 @@ private fun Sidebar(
             ) {
                 Icon(Icons.Filled.PowerSettingsNew, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(8.dp))
-                Text("Log Out", color = Color.White)
+                Text("Log Out", style = MaterialTheme.typography.body1.copy(color = Color.White))
             }
         }
     }
@@ -245,8 +243,8 @@ private fun SidebarItem(
             )
             Text(
                 text = destination.label,
-                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
-                color = textColor
+                style = MaterialTheme.typography.body1.copy(color = textColor),
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
             )
         }
     }
@@ -291,8 +289,8 @@ private fun MainContent(
                             Text(
                                 text = user.avatarInitials.takeIf { it.isNotBlank() } ?: user.name.split(" ")
                                     .take(2).joinToString("") { it.first().uppercaseChar().toString() },
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colors.primary
+                                style = MaterialTheme.typography.body1.copy(color = MaterialTheme.colors.primary),
+                                fontWeight = FontWeight.Bold
                             )
                         }
 
@@ -304,7 +302,7 @@ private fun MainContent(
                                 showProfileMenu = false
                                 onLogout()
                             }) {
-                                Text("Sign out")
+                                Text("Sign out", style = MaterialTheme.typography.body1)
                             }
                         }
                     }

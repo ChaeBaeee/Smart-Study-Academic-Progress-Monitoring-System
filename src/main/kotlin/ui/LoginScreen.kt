@@ -69,14 +69,12 @@ fun LoginScreen(
                 ) {
                     Text(
                         text = "Smart Study",
-                        style = MaterialTheme.typography.h4,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = Color(0xFF5A6DFF)
+                        style = MaterialTheme.typography.h4.copy(color = Color(0xFF5A6DFF)),
+                        fontWeight = FontWeight.ExtraBold
                     )
                     Text(
                         text = "Academic Progress Monitoring",
-                        style = MaterialTheme.typography.subtitle1,
-                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
+                        style = MaterialTheme.typography.subtitle1.copy(color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f))
                     )
                 }
 
@@ -92,7 +90,7 @@ fun LoginScreen(
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Password") },
+                    label = { Text("Password", style = MaterialTheme.typography.body2) },
                     leadingIcon = { Icon(Icons.Outlined.Lock, contentDescription = null) },
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation(),
@@ -102,8 +100,7 @@ fun LoginScreen(
                 error?.let {
                     Text(
                         text = it,
-                        color = Color(0xFFE74C3C),
-                        style = MaterialTheme.typography.body2
+                        style = MaterialTheme.typography.body2.copy(color = Color(0xFFE74C3C))
                     )
                 }
 
@@ -125,14 +122,14 @@ fun LoginScreen(
                         contentColor = Color.White
                     )
                 ) {
-                    Text("Sign In", fontWeight = FontWeight.Bold)
+                    Text("Sign In", style = MaterialTheme.typography.body1, fontWeight = FontWeight.Bold)
                 }
 
                 TextButton(
                     onClick = { showRegisterDialog = true },
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
-                    Text("Register as New Student")
+                    Text("Register as New Student", style = MaterialTheme.typography.body1)
                 }
             }
         }
@@ -166,30 +163,30 @@ private fun RegisterDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Create Account") },
+        title = { Text("Create Account", style = MaterialTheme.typography.h6, fontWeight = FontWeight.Bold) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text("Full Name") },
+                    label = { Text("Full Name", style = MaterialTheme.typography.body2) },
                     singleLine = true
                 )
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
-                    label = { Text("Email") },
+                    label = { Text("Email", style = MaterialTheme.typography.body2) },
                     singleLine = true
                 )
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Password (min 6 chars)") },
+                    label = { Text("Password (min 6 chars)", style = MaterialTheme.typography.body2) },
                     singleLine = true,
                     visualTransformation = PasswordVisualTransformation()
                 )
                 validationError?.let {
-                    Text(text = it, color = Color(0xFFE74C3C))
+                    Text(text = it, style = MaterialTheme.typography.body2.copy(color = Color(0xFFE74C3C)))
                 }
             }
         },
@@ -204,12 +201,12 @@ private fun RegisterDialog(
                     }
                 }
             ) {
-                Text("Create Account")
+                Text("Create Account", style = MaterialTheme.typography.body1)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("Cancel", style = MaterialTheme.typography.body1)
             }
         }
     )

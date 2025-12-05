@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -29,6 +30,31 @@ import com.smartstudy.services.StudyScheduleService
 import kotlinx.coroutines.launch
 import com.smartstudy.ui.components.GradientCard
 
+// Helper function to parse hex color string to Color
+private fun hexToColor(hex: String): Color {
+    return try {
+        val cleanHex = hex.removePrefix("#")
+        when (cleanHex.length) {
+            6 -> {
+                val r = cleanHex.substring(0, 2).toInt(16)
+                val g = cleanHex.substring(2, 4).toInt(16)
+                val b = cleanHex.substring(4, 6).toInt(16)
+                Color(r, g, b)
+            }
+            8 -> {
+                val a = cleanHex.substring(0, 2).toInt(16)
+                val r = cleanHex.substring(2, 4).toInt(16)
+                val g = cleanHex.substring(4, 6).toInt(16)
+                val b = cleanHex.substring(6, 8).toInt(16)
+                Color(r, g, b, a)
+            }
+            else -> Color(0xFF3498DB) // Default blue
+        }
+    } catch (e: Exception) {
+        Color(0xFF3498DB) // Default blue on error
+    }
+}
+
 @Composable
 fun ScheduleScreen() {
     val scheduleService = remember { StudyScheduleService() }
@@ -49,9 +75,6 @@ fun ScheduleScreen() {
     var editingItem by remember { mutableStateOf<com.smartstudy.models.ScheduleItem?>(null) }
 
     val nextSession = remember(refreshTrigger, dataVersion) { getNextSessionSummary() }
-    val suggestions = remember(refreshTrigger, dataVersion) {
-        reviewService.getSuggestedTopics(limit = 3)
-    }
     val subjects = remember(dataVersion) { DataManager.getSubjects() }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -86,7 +109,7 @@ fun ScheduleScreen() {
                     ) {
                         Icon(Icons.Filled.AutoFixHigh, contentDescription = null, modifier = Modifier.size(20.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Generate Schedule", fontWeight = FontWeight.Bold)
+                        Text("Generate Schedule", style = MaterialTheme.typography.body1, fontWeight = FontWeight.Bold)
                     }
                     OutlinedButton(
                         onClick = {
@@ -102,7 +125,7 @@ fun ScheduleScreen() {
                     ) {
                         Icon(Icons.Filled.Clear, contentDescription = null, modifier = Modifier.size(20.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Clear All", fontWeight = FontWeight.Bold)
+                        Text("Clear All", style = MaterialTheme.typography.body1, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -152,9 +175,11 @@ fun ScheduleScreen() {
                                 ) {
                                     Text(
                                         text = dayName,
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                        color = if (isSelected) Color.White else MaterialTheme.colors.onSurface,
-                                        fontSize = 14.sp
+                                        style = MaterialTheme.typography.body2.copy(
+                                            color = if (isSelected) Color.White else MaterialTheme.colors.onSurface,
+                                            fontSize = 14.sp
+                                        ),
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                                     )
                                     if (hasItems) {
                                         Spacer(modifier = Modifier.height(4.dp))
@@ -188,7 +213,7 @@ fun ScheduleScreen() {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = fullDayNames[selectedDay],
+                                text = fullDayNames.getOrElse(selectedDay.coerceIn(0, 6)) { "Day" },
                                 style = MaterialTheme.typography.h6,
                                 fontWeight = FontWeight.Bold
                             )
@@ -198,7 +223,7 @@ fun ScheduleScreen() {
                             ) {
                                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(Modifier.width(4.dp))
-                                Text("Add Session")
+                                Text("Add Session", style = MaterialTheme.typography.body1)
                             }
                         }
                         
@@ -222,14 +247,13 @@ fun ScheduleScreen() {
                                     )
                                     Spacer(Modifier.height(8.dp))
                                     Text(
-                                        "No sessions scheduled for ${fullDayNames[selectedDay]}",
-                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.5f)
+                                        text = "No sessions scheduled for ${fullDayNames.getOrElse(selectedDay.coerceIn(0, 6)) { "Day" }}",
+                                        style = MaterialTheme.typography.body2.copy(color = MaterialTheme.colors.onSurface.copy(alpha = 0.5f))
                                     )
                                     Spacer(Modifier.height(8.dp))
                                     Text(
-                                        "Click 'Generate Schedule' to create study sessions",
-                                        style = MaterialTheme.typography.caption,
-                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.4f)
+                                        text = "Click 'Generate Schedule' to create study sessions",
+                                        style = MaterialTheme.typography.caption.copy(color = MaterialTheme.colors.onSurface.copy(alpha = 0.4f))
                                     )
                                 }
                             }
@@ -240,6 +264,7 @@ fun ScheduleScreen() {
                                     time = item.startTime,
                                     duration = item.durationMinutes,
                                     subjectName = subject?.name ?: "Unknown",
+                                    subjectColor = subject?.let { hexToColor(it.color) } ?: Color(0xFF3498DB),
                                     topic = item.topic,
                                     onEdit = { editingItem = item },
                                     onDelete = {
@@ -331,7 +356,8 @@ private fun EditScheduleDialog(
         onDismissRequest = onDismiss,
         title = { 
             Text(
-                "Edit Study Session - ${fullDayNames[item.dayOfWeek]}",
+                text = "Edit Study Session - ${fullDayNames.getOrElse(item.dayOfWeek.coerceIn(0, 6)) { "Day" }}",
+                style = MaterialTheme.typography.h6,
                 fontWeight = FontWeight.Bold
             )
         },
@@ -340,7 +366,7 @@ private fun EditScheduleDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Subject dropdown
-                Text("Subject", fontWeight = FontWeight.Medium)
+                Text("Subject", style = MaterialTheme.typography.body1, fontWeight = FontWeight.Medium)
                 Box {
                     OutlinedButton(
                         onClick = { expanded = true },
@@ -348,7 +374,8 @@ private fun EditScheduleDialog(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
-                            subjects.find { it.id == selectedSubjectId }?.name ?: "Select Subject",
+                            text = subjects.find { it.id == selectedSubjectId }?.name ?: "Select Subject",
+                            style = MaterialTheme.typography.body1,
                             modifier = Modifier.weight(1f)
                         )
                         Icon(Icons.Default.ArrowDropDown, contentDescription = null)
@@ -358,20 +385,31 @@ private fun EditScheduleDialog(
                         onDismissRequest = { expanded = false }
                     ) {
                         subjects.forEach { subject ->
+                            val subjectColor = hexToColor(subject.color)
                             DropdownMenuItem(
                                 onClick = {
                                     selectedSubjectId = subject.id
                                     expanded = false
                                 }
                             ) {
-                                Text(subject.name)
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(16.dp)
+                                            .background(subjectColor, CircleShape)
+                                    )
+                                    Text(subject.name, style = MaterialTheme.typography.body1)
+                                }
                             }
                         }
                     }
                 }
                 
                 // Time input
-                Text("Start Time", fontWeight = FontWeight.Medium)
+                Text("Start Time", style = MaterialTheme.typography.body1, fontWeight = FontWeight.Medium)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -379,22 +417,22 @@ private fun EditScheduleDialog(
                     OutlinedTextField(
                         value = hour,
                         onValueChange = { if (it.length <= 2 && it.all { c -> c.isDigit() }) hour = it },
-                        label = { Text("Hour") },
+                        label = { Text("Hour", style = MaterialTheme.typography.body2) },
                         modifier = Modifier.weight(1f),
                         singleLine = true
                     )
-                    Text(":", fontWeight = FontWeight.Bold, fontSize = 24.sp)
+                    Text(":", style = MaterialTheme.typography.h5.copy(fontSize = 24.sp), fontWeight = FontWeight.Bold)
                     OutlinedTextField(
                         value = minute,
                         onValueChange = { if (it.length <= 2 && it.all { c -> c.isDigit() }) minute = it },
-                        label = { Text("Min") },
+                        label = { Text("Min", style = MaterialTheme.typography.body2) },
                         modifier = Modifier.weight(1f),
                         singleLine = true
                     )
                 }
                 
                 // Duration
-                Text("Duration (minutes)", fontWeight = FontWeight.Medium)
+                Text("Duration (minutes)", style = MaterialTheme.typography.body1, fontWeight = FontWeight.Medium)
                 OutlinedTextField(
                     value = duration,
                     onValueChange = { if (it.all { c -> c.isDigit() }) duration = it },
@@ -403,13 +441,13 @@ private fun EditScheduleDialog(
                 )
                 
                 // Topic
-                Text("Topic (optional)", fontWeight = FontWeight.Medium)
+                Text("Topic (optional)", style = MaterialTheme.typography.body1, fontWeight = FontWeight.Medium)
                 OutlinedTextField(
                     value = topic,
                     onValueChange = { topic = it },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    placeholder = { Text("e.g., Chapter 5 Review") }
+                    placeholder = { Text("e.g., Chapter 5 Review", style = MaterialTheme.typography.body2) }
                 )
             }
         },
@@ -421,18 +459,18 @@ private fun EditScheduleDialog(
                     val d = duration.toIntOrNull()?.coerceIn(1, 480) ?: 60
                     val timeStr = String.format("%02d:%02d", h, m)
                     if (selectedSubjectId.isNotEmpty()) {
-                        onSave(selectedSubjectId, timeStr, d, topic)
+                        onSave(selectedSubjectId, timeStr, d, topic.trim())
                     }
                 },
                 enabled = selectedSubjectId.isNotEmpty(),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Save Changes")
+                Text("Save Changes", style = MaterialTheme.typography.body1)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("Cancel", style = MaterialTheme.typography.body1)
             }
         },
         shape = RoundedCornerShape(20.dp)
@@ -458,7 +496,8 @@ private fun AddScheduleDialog(
         onDismissRequest = onDismiss,
         title = { 
             Text(
-                "Add Study Session - ${fullDayNames[selectedDay]}",
+                text = "Add Study Session - ${fullDayNames.getOrElse(selectedDay.coerceIn(0, 6)) { "Day" }}",
+                style = MaterialTheme.typography.h6,
                 fontWeight = FontWeight.Bold
             )
         },
@@ -467,7 +506,7 @@ private fun AddScheduleDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Subject dropdown
-                Text("Subject", fontWeight = FontWeight.Medium)
+                Text("Subject", style = MaterialTheme.typography.body1, fontWeight = FontWeight.Medium)
                 Box {
                     OutlinedButton(
                         onClick = { expanded = true },
@@ -475,7 +514,8 @@ private fun AddScheduleDialog(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
-                            subjects.find { it.id == selectedSubjectId }?.name ?: "Select Subject",
+                            text = subjects.find { it.id == selectedSubjectId }?.name ?: "Select Subject",
+                            style = MaterialTheme.typography.body1,
                             modifier = Modifier.weight(1f)
                         )
                         Icon(Icons.Default.ArrowDropDown, contentDescription = null)
@@ -485,20 +525,31 @@ private fun AddScheduleDialog(
                         onDismissRequest = { expanded = false }
                     ) {
                         subjects.forEach { subject ->
+                            val subjectColor = hexToColor(subject.color)
                             DropdownMenuItem(
                                 onClick = {
                                     selectedSubjectId = subject.id
                                     expanded = false
                                 }
                             ) {
-                                Text(subject.name)
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(16.dp)
+                                            .background(subjectColor, CircleShape)
+                                    )
+                                    Text(subject.name, style = MaterialTheme.typography.body1)
+                                }
                             }
                         }
                     }
                 }
                 
                 // Time input
-                Text("Start Time", fontWeight = FontWeight.Medium)
+                Text("Start Time", style = MaterialTheme.typography.body1, fontWeight = FontWeight.Medium)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -506,22 +557,22 @@ private fun AddScheduleDialog(
                     OutlinedTextField(
                         value = hour,
                         onValueChange = { if (it.length <= 2 && it.all { c -> c.isDigit() }) hour = it },
-                        label = { Text("Hour") },
+                        label = { Text("Hour", style = MaterialTheme.typography.body2) },
                         modifier = Modifier.weight(1f),
                         singleLine = true
                     )
-                    Text(":", fontWeight = FontWeight.Bold, fontSize = 24.sp)
+                    Text(":", style = MaterialTheme.typography.h5.copy(fontSize = 24.sp), fontWeight = FontWeight.Bold)
                     OutlinedTextField(
                         value = minute,
                         onValueChange = { if (it.length <= 2 && it.all { c -> c.isDigit() }) minute = it },
-                        label = { Text("Min") },
+                        label = { Text("Min", style = MaterialTheme.typography.body2) },
                         modifier = Modifier.weight(1f),
                         singleLine = true
                     )
                 }
                 
                 // Duration
-                Text("Duration (minutes)", fontWeight = FontWeight.Medium)
+                Text("Duration (minutes)", style = MaterialTheme.typography.body1, fontWeight = FontWeight.Medium)
                 OutlinedTextField(
                     value = duration,
                     onValueChange = { if (it.all { c -> c.isDigit() }) duration = it },
@@ -530,13 +581,13 @@ private fun AddScheduleDialog(
                 )
                 
                 // Topic
-                Text("Topic (optional)", fontWeight = FontWeight.Medium)
+                Text("Topic (optional)", style = MaterialTheme.typography.body1, fontWeight = FontWeight.Medium)
                 OutlinedTextField(
                     value = topic,
                     onValueChange = { topic = it },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    placeholder = { Text("e.g., Chapter 5 Review") }
+                    placeholder = { Text("e.g., Chapter 5 Review", style = MaterialTheme.typography.body2) }
                 )
             }
         },
@@ -548,18 +599,18 @@ private fun AddScheduleDialog(
                     val d = duration.toIntOrNull()?.coerceIn(1, 480) ?: 60
                     val timeStr = String.format("%02d:%02d", h, m)
                     if (selectedSubjectId.isNotEmpty()) {
-                        onAdd(selectedSubjectId, timeStr, d, topic)
+                        onAdd(selectedSubjectId, timeStr, d, topic.trim())
                     }
                 },
                 enabled = selectedSubjectId.isNotEmpty(),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text("Add Session")
+                Text("Add Session", style = MaterialTheme.typography.body1)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("Cancel", style = MaterialTheme.typography.body1)
             }
         },
         shape = RoundedCornerShape(20.dp)
@@ -571,6 +622,7 @@ private fun ScheduleItemCard(
     time: String,
     duration: Int,
     subjectName: String,
+    subjectColor: Color,
     topic: String,
     onEdit: () -> Unit,
     onDelete: () -> Unit
@@ -579,7 +631,7 @@ private fun ScheduleItemCard(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                MaterialTheme.colors.primary.copy(alpha = 0.08f),
+                subjectColor.copy(alpha = 0.15f),
                 RoundedCornerShape(16.dp)
             )
             .padding(16.dp)
@@ -595,32 +647,40 @@ private fun ScheduleItemCard(
             ) {
                 Text(
                     text = time,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
-                    color = MaterialTheme.colors.primary
+                    style = MaterialTheme.typography.h6.copy(color = subjectColor, fontSize = 18.sp),
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
                     text = "$duration min",
-                    style = MaterialTheme.typography.caption,
-                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
+                    style = MaterialTheme.typography.caption.copy(color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f))
                 )
             }
             
             Spacer(Modifier.width(16.dp))
             
             // Subject and topic
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = subjectName,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(12.dp)
+                        .background(subjectColor, CircleShape)
                 )
-                if (topic.isNotEmpty()) {
+                Column {
                     Text(
-                        text = topic,
-                        style = MaterialTheme.typography.body2,
-                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f)
+                        text = subjectName,
+                        style = MaterialTheme.typography.body1.copy(color = subjectColor, fontSize = 16.sp),
+                        fontWeight = FontWeight.Bold
                     )
+                    if (topic.isNotEmpty()) {
+                        Text(
+                            text = topic,
+                            style = MaterialTheme.typography.body2.copy(color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f))
+                        )
+                    }
                 }
             }
             
@@ -629,7 +689,7 @@ private fun ScheduleItemCard(
                 Icon(
                     Icons.Default.Edit,
                     contentDescription = "Edit",
-                    tint = MaterialTheme.colors.primary
+                    tint = subjectColor
                 )
             }
             
@@ -655,17 +715,16 @@ private fun ScheduleHeroCard(
         colors = listOf(Color(0xFF7F7CFF), Color(0xFFA6B7FF))
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Adaptive Schedule", color = Color.White.copy(alpha = 0.9f))
+            Text("Adaptive Schedule", style = MaterialTheme.typography.h6.copy(color = Color.White.copy(alpha = 0.9f)))
             if (nextSession != null) {
                 Text(
-                    nextSession.subject,
-                    color = Color.White,
-                    style = MaterialTheme.typography.h4,
+                    text = nextSession.subject,
+                    style = MaterialTheme.typography.h4.copy(color = Color.White),
                     fontWeight = FontWeight.ExtraBold
                 )
                 Text(
-                    "${nextSession.day} · ${nextSession.time} · ${nextSession.duration} min",
-                    color = Color.White.copy(alpha = 0.9f)
+                    text = "${nextSession.day} · ${nextSession.time} · ${nextSession.duration} min",
+                    style = MaterialTheme.typography.body2.copy(color = Color.White.copy(alpha = 0.9f))
                 )
                 if (nextSession.topic.isNotEmpty()) {
                     Surface(
@@ -674,7 +733,7 @@ private fun ScheduleHeroCard(
                     ) {
                         Text(
                             text = nextSession.topic,
-                            color = Color.White,
+                            style = MaterialTheme.typography.body2.copy(color = Color.White),
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                         )
                     }
@@ -682,8 +741,7 @@ private fun ScheduleHeroCard(
             } else {
                 Text(
                     text = "No sessions scheduled. Generate an adaptive plan to stay on track.",
-                    color = Color.White,
-                    style = MaterialTheme.typography.body1
+                    style = MaterialTheme.typography.body1.copy(color = Color.White)
                 )
             }
         }
@@ -706,7 +764,7 @@ private fun getNextSessionSummary(): NextSessionSummary? {
     return next?.let {
         NextSessionSummary(
             subject = subjects[it.subjectId]?.name ?: "Subject",
-            day = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat").getOrElse(it.dayOfWeek) { "Day" },
+            day = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat").getOrElse(it.dayOfWeek.coerceIn(0, 6)) { "Day" },
             time = it.startTime,
             duration = it.durationMinutes,
             topic = it.topic

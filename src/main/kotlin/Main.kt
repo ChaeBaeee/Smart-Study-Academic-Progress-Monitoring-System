@@ -31,7 +31,6 @@ fun main() = application {
             height = 800.dp
         )
     ) {
-        // Set minimum window size to prevent UI from breaking
         androidx.compose.runtime.LaunchedEffect(Unit) {
             window.minimumSize = Dimension(800, 600)
         }

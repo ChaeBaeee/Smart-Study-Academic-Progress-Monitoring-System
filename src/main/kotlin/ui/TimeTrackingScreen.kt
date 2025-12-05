@@ -7,6 +7,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -21,6 +24,31 @@ import com.smartstudy.data.DataManager
 import com.smartstudy.services.TimeTrackingService
 import java.text.SimpleDateFormat
 import java.util.*
+
+// Helper function to parse hex color string to Color
+private fun hexToColor(hex: String): Color {
+    return try {
+        val cleanHex = hex.removePrefix("#")
+        when (cleanHex.length) {
+            6 -> {
+                val r = cleanHex.substring(0, 2).toInt(16)
+                val g = cleanHex.substring(2, 4).toInt(16)
+                val b = cleanHex.substring(4, 6).toInt(16)
+                Color(r, g, b)
+            }
+            8 -> {
+                val a = cleanHex.substring(0, 2).toInt(16)
+                val r = cleanHex.substring(2, 4).toInt(16)
+                val g = cleanHex.substring(4, 6).toInt(16)
+                val b = cleanHex.substring(6, 8).toInt(16)
+                Color(r, g, b, a)
+            }
+            else -> Color(0xFF3498DB) // Default blue
+        }
+    } catch (e: Exception) {
+        Color(0xFF3498DB) // Default blue on error
+    }
+}
 
 @Composable
 fun TimeTrackingScreen() {
@@ -124,7 +152,7 @@ fun TimeTrackingScreen() {
                         }
                     }
                 ) {
-                    Text("Filter")
+                    Text("Filter", style = MaterialTheme.typography.body1)
                 }
                 OutlinedButton(
                     onClick = {
@@ -133,7 +161,7 @@ fun TimeTrackingScreen() {
                 ) {
                     Icon(Icons.Default.Refresh, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
-                    Text("Refresh")
+                    Text("Refresh", style = MaterialTheme.typography.body1)
                 }
             }
         }
@@ -159,8 +187,7 @@ fun TimeTrackingScreen() {
                     ) {
                         Text(
                             text = "No study sessions recorded",
-                            style = MaterialTheme.typography.body1,
-                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
+                            style = MaterialTheme.typography.body1.copy(color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f))
                         )
                     }
                 }
@@ -177,10 +204,12 @@ fun TimeTrackingScreen() {
                     ) {
                         items(sessions) { session ->
                         val subject = DataManager.getSubjects().find { it.id == session.subjectId }
+                        val subjectColor: Color = subject?.let { hexToColor(it.color) } ?: Color(0xFF3498DB)
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colors.surface
+                            color = subjectColor.copy(alpha = 0.1f),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, subjectColor.copy(alpha = 0.3f))
                         ) {
                             Column(
                                 modifier = Modifier.padding(16.dp),
@@ -191,10 +220,18 @@ fun TimeTrackingScreen() {
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(12.dp)
+                                                .background(color = subjectColor, shape = CircleShape)
+                                        )
                                         Text(
                                             text = subject?.name ?: "Unknown",
-                                            style = MaterialTheme.typography.subtitle1,
+                                            style = MaterialTheme.typography.subtitle1.copy(color = subjectColor),
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
@@ -203,15 +240,14 @@ fun TimeTrackingScreen() {
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         Surface(
-                                            color = MaterialTheme.colors.primary.copy(alpha = 0.1f),
+                                            color = subjectColor.copy(alpha = 0.2f),
                                             shape = RoundedCornerShape(8.dp)
                                         ) {
                                             Text(
                                                 text = "${session.durationMinutes} min",
-                                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                                style = MaterialTheme.typography.body2,
+                                                style = MaterialTheme.typography.body2.copy(color = subjectColor),
                                                 fontWeight = FontWeight.Bold,
-                                                color = MaterialTheme.colors.primary
+                                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                                             )
                                         }
                                         IconButton(
@@ -236,15 +272,13 @@ fun TimeTrackingScreen() {
                                 
                                 Text(
                                     text = dateFormat.format(Date(session.startTime)),
-                                    style = MaterialTheme.typography.caption,
-                                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f)
+                                    style = MaterialTheme.typography.caption.copy(color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f))
                                 )
                                 
                                 if (session.notes.isNotEmpty()) {
                                     Text(
                                         text = session.notes,
-                                        style = MaterialTheme.typography.body2,
-                                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
+                                        style = MaterialTheme.typography.body2.copy(color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f)),
                                         modifier = Modifier.padding(top = 4.dp)
                                     )
                                 }
@@ -282,8 +316,7 @@ private fun StatCard(
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.caption,
-                color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f)
+                style = MaterialTheme.typography.caption.copy(color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f))
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -298,9 +331,8 @@ private fun StatCard(
                 }
                 Text(
                     text = value,
-                    style = MaterialTheme.typography.h5,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colors.onSurface
+                    style = MaterialTheme.typography.h5.copy(color = MaterialTheme.colors.onSurface),
+                    fontWeight = FontWeight.Bold
                 )
             }
         }

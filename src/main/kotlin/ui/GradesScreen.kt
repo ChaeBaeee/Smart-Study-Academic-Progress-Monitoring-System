@@ -221,7 +221,10 @@ fun GradesScreen() {
     if (showAddGradeDialog) {
         AddGradeDialog(
             editingGrade = editingGrade,
-            onDismiss = { },
+            onDismiss = { 
+                showAddGradeDialog = false
+                editingGrade = null
+            },
             onAdd = { subjectName: String, type: String, score: Double, maxScore: Double, category: String ->
                 val subject = DataManager.getSubjects().find { it.name == subjectName }
                 if (subject != null) {
@@ -253,6 +256,8 @@ fun GradesScreen() {
                     gradeVersion++
                     UiEventBus.notifyDataChanged()
                 }
+                showAddGradeDialog = false
+                editingGrade = null
             }
         )
     }

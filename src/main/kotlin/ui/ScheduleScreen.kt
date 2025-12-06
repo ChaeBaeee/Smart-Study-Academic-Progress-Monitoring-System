@@ -261,7 +261,7 @@ fun ScheduleScreen() {
             selectedDay = selectedDay,
             fullDayNames = fullDayNames,
             subjects = subjects,
-            onDismiss = { },
+            onDismiss = { showAddDialog = false },
             onAdd = { subjectId, startTime, duration, topic ->
                 val newItem = ScheduleItem(
                     id = java.util.UUID.randomUUID().toString(),
@@ -276,6 +276,7 @@ fun ScheduleScreen() {
                 UiEventBus.notifyDataChanged()
                 refreshTrigger++
                 scope.launch { snackbarHostState.showSnackbar("Session added!") }
+                showAddDialog = false
             }
         )
     }
@@ -286,7 +287,7 @@ fun ScheduleScreen() {
             item = item,
             fullDayNames = fullDayNames,
             subjects = subjects,
-            onDismiss = { },
+            onDismiss = { editingItem = null },
             onSave = { subjectId, startTime, duration, topic ->
                 val updatedItem = item.copy(
                     subjectId = subjectId,
@@ -298,6 +299,7 @@ fun ScheduleScreen() {
                 UiEventBus.notifyDataChanged()
                 refreshTrigger++
                 scope.launch { snackbarHostState.showSnackbar("Session updated!") }
+                editingItem = null
             }
         )
     }

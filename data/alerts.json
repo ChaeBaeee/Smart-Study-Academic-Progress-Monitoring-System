@@ -502,5 +502,13 @@
         "date": 1764919089500,
         "resolved": true,
         "severity": 2
+    },
+    {
+        "id": "754df964-7a3d-4059-980a-3650949fb72c",
+        "type": "MISSED_STUDY_GOAL",
+        "subjectId": "1737929e-e74a-4611-a899-e030b02d7115",
+        "message": "Study goal completion is 0.0% for sadas. Consider adjusting your schedule.",
+        "date": 1765009488756,
+        "severity": 2
     }
 ]

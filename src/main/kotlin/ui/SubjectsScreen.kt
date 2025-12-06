@@ -154,7 +154,7 @@ fun SubjectsScreen(
 
     if (showAddSubjectDialog) {
         AddSubjectDialog(
-            onDismiss = { },
+            onDismiss = { showAddSubjectDialog = false },
                 onAdd = { name: String, hours: Double, color: String ->
                 val subject = Subject(
                     id = UUID.randomUUID().toString(),
@@ -165,6 +165,7 @@ fun SubjectsScreen(
                 DataManager.addSubject(subject)
                 selectedSubjectId = subject.id
                 UiEventBus.notifyDataChanged()
+                showAddSubjectDialog = false
             }
         )
     }
@@ -173,7 +174,7 @@ fun SubjectsScreen(
         AddTopicDialog(
             subjects = subjects,
             selectedSubjectId = topicSubjectId ?: selectedSubjectId,
-            onDismiss = { },
+            onDismiss = { showAddTopicDialog = false },
             onAdd = { name: String, subjectId: String, difficulty: Int ->
                 val topic = Topic(
                     id = UUID.randomUUID().toString(),
@@ -186,6 +187,7 @@ fun SubjectsScreen(
                     topics = DataManager.getTopics().filter { it.subjectId == subjectId }
                 }
                 UiEventBus.notifyDataChanged()
+                showAddTopicDialog = false
             }
         )
     }
@@ -193,7 +195,7 @@ fun SubjectsScreen(
     editingTopic?.let { topic ->
         EditTopicDialog(
             topic = topic,
-            onDismiss = { },
+            onDismiss = { editingTopic = null },
             onSave = { newName, newDifficulty, newSubjectId ->
                 val updatedTopic = topic.copy(
                     name = newName.trim(),
@@ -204,6 +206,7 @@ fun SubjectsScreen(
                 topics = DataManager.getTopics().filter { it.subjectId == selectedSubjectId }
                 suggestions = reviewService.getSuggestedTopics(limit = 8)
                 UiEventBus.notifyDataChanged()
+                editingTopic = null
             }
         )
     }
